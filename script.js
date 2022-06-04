@@ -2,6 +2,7 @@ var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
 var initialAngle = 20;
 var initialHeight = 50;
+var initialPosition = 100;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
 var tiltedWidth = initialHeight * Math.sin((Math.PI / 180) * initialAngle);
 var nodes = [];
@@ -35,163 +36,15 @@ function buildTree() {
   buildTree();
 }
 
-var boxes = [];
-
-function initializeTree() {
-  boxes = [];
-  var label = document.createElement("div");
-  label.className = "label";
-  root.appendChild(label);
-
-  var text = document.createElement("h2");
-  text.innerHTML = tree[0][0];
-  label.appendChild(text);
-
-  var box = document.createElement("div");
-  box.className = "box";
-  root.appendChild(box);
-
-  setTimeout(() => {
-    label.style.width = "50px";
-    label.style.height = "50px";
-    boxes.push([tree[0][0], box]);
-    buildVizualizer();
-  }, 10);
-}
-
-function buildVizualizer() {
-  var temp_nodes = tree;
-  temp_nodes[0][0] = [temp_nodes[0][0], 0, 0];
-  var exp = 1;
-  // while (temp_nodes.length > 0) {
-  //   var temp_boxes = [];
-  //   var temp = temp_nodes;
-  //   temp_nodes = [];
-  //   var count = 0;
-  //   temp.forEach((parent_node) => {
-  //     if (parent_node[1] == null) {
-  //       return;
-  //     }
-
-  //     var node_number = parent_node[0][2] * 2;
-
-  //     parent_node[1].forEach((node) => {
-  //       var angle = count % 2 == 0 ? initialAngle : initialAngle * -1;
-  //       count++;
-  //       var number = node_number + 1;
-  //       var num = number > exp ? number - exp - 1 : exp - number;
-  //       if (exp > 2) {
-  //         var times = Math.floor(num / 4) * 3;
-  //         times = times == 0 ? 1 : times;
-  //         if (exp > 8) {
-  //           times = 1;
-  //         }
-  //         angle +=
-  //           number > exp ? initialAngle * times * -1 : initialAngle * times;
-  //       }
-  //       var box_id = boxes.findIndex((x) => {
-  //         return x[0] == parent_node[0][0];
-  //       });
-
-  //       temp_boxes.push(
-  //         [node[0], addNode(boxes[box_id][1], node[0], angle, 0)],
-  //         num
-  //       );
-
-  //       if (boxes[box_id][1].children.length >= 2) {
-  //         boxes.splice(box_id, 1);
-  //       }
-
-  //       if (node[1] != null) {
-  //         temp_nodes.push([[node[0], num, node_number], node[1]]);
-  //       }
-  //       node_number++;
-  //     });
-  //   });
-
-  //   count = 0;
-  //   boxes = temp_boxes;
-  //   exp = exp << 1;
-  // }
-}
-
-function addNode(node, num, angle, height) {
-  var parent = document.createElement("div");
-  parent.className = "labels";
-
-  var line = document.createElement("div");
-  line.className = "line";
-  parent.appendChild(line);
-
-  var label = document.createElement("div");
-  label.className = "label";
-  parent.appendChild(label);
-
-  var text = document.createElement("h2");
-  text.innerHTML = num;
-  label.appendChild(text);
-
-  var box = document.createElement("div");
-  box.className = "box";
-  parent.appendChild(box);
-
-  node.appendChild(parent);
-
-  setTimeout(() => {
-    line.style.height = `${150 - height}px`;
-    setTimeout(() => {
-      label.style.width = "50px";
-      label.style.height = "50px";
-      setTimeout(() => {
-        parent.style.transform = `rotateZ(${angle}deg)`;
-      }, 300);
-    }, 500);
-  }, 10);
-  return box;
-}
-
-function updateVizualizer() {
-  boxes = [root.lastChild];
-  var temp_boxes;
-  while (boxes.length > 0) {
-    temp_boxes = [];
-    var count = 0;
-    boxes.forEach((parent_node) => {
-      if (parent_node == null) {
-        return;
-      }
-      var children = Array.from(parent_node.children);
-      children.forEach((node) => {
-        var angle = count % 2 == 0 ? initialAngle : initialAngle * -1;
-        count++;
-
-        node.style.transform = `rotateZ(${angle}deg)`;
-
-        if (node.children[2].firstChild != null) {
-          temp_boxes.push(node.children[2]);
-        }
-      });
-    });
-
-    count = 0;
-    boxes = temp_boxes;
-  }
-}
-
 angle_range.addEventListener("input", (e) => {
   initialAngle = e.target.value;
   updateVizualizer();
 });
 
 function rebuildTree() {
-  if (root.children.length > 0) {
-    while (root.firstChild != null) {
-      root.removeChild(root.firstChild);
-    }
-  }
-
   buildTree();
-  initializeTree();
+  var treenodes = [];
+  tree.forEach((x) => {});
 }
 
 var card_id = 0;
@@ -232,14 +85,10 @@ function receiveInput(e) {
   nodes.sort((x, y) => {
     return x[0] - y[0];
   });
-  // console.table(nodes);
-  // rebuildTree();
   buildTree();
   console.table(tree);
 }
 
-// ==========================================================
-// ==========================================================
 function build() {
   var treeHeight = 6;
 
@@ -322,8 +171,8 @@ function addLine(x, y, angle, height, direction) {
   var line = document.createElement("div");
   line.className = "line";
   line.style.height = `${height}px`;
-  line.style.transform = `translate(${x * direction}px, ${y}px) rotateZ(${
-    angle * direction
-  }deg)`;
+  line.style.transform = `translate(${x * direction}px, ${
+    y + initialPosition
+  }px) rotateZ(${angle * direction}deg)`;
   parent.appendChild(line);
 }
