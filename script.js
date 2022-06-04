@@ -239,13 +239,6 @@ function receiveInput(e) {
 // ==========================================================
 // ==========================================================
 function build() {
-  var parent = document.querySelector(".box");
-  console.log("build");
-  var line = document.createElement("div");
-  line.className = "line";
-  line.style.transform = "rotateZ(45deg)";
-  parent.appendChild(line);
-  // var children = [];
   var treeHeight = 5;
 
   buildLevelOne(treeHeight);
@@ -267,7 +260,7 @@ function build() {
 
 build();
 
-function buildLevelThree(treeHeight, level, parent) {
+function buildLevelThree(treeHeight, level) {
   for (var j = 0; j < 2 ** (treeHeight - level) - 1; j++) {
     for (var i = 1; i <= 2; i++) {
       var b = 2 ** (level - 2) * i - (level == 4 ? 0 : 1);
@@ -285,7 +278,7 @@ function buildLevelThree(treeHeight, level, parent) {
   }
 }
 
-function buildLevelTwo(treeHeight, parent) {
+function buildLevelTwo(treeHeight) {
   var length = Math.sqrt((70.71 * 2) ** 2 + 70.71 ** 2);
   var angle = (Math.acos(70.71 / length) * 180) / Math.PI;
 
