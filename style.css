@@ -156,14 +156,12 @@ h1 {
 
 .line {
   position: absolute;
-  width: 1px;
+  width: 5px;
   height: 100px;
   background-color: white;
   transform-origin: top;
   border-radius: 10px;
-  transition-property: height;
-  transition-duration: 0.3s;
-  transition-timing-function: ease-in;
+  transition: all 0.3s ease-in;
 }
 
 .left {

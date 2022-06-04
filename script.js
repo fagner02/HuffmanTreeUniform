@@ -1,6 +1,6 @@
 var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
-var initialAngle = 25;
+var initialAngle = 20;
 var initialHeight = 50;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
 var tiltedWidth = initialHeight * Math.sin((Math.PI / 180) * initialAngle);
@@ -243,84 +243,87 @@ function receiveInput(e) {
 function build() {
   var treeHeight = 6;
 
-  buildLevelOne(treeHeight);
-  buildLevelTwo(treeHeight, parent);
-
-  for (var i = 3; i < treeHeight; i++) {
-    buildLevelThree(treeHeight, i, parent);
-  }
-
   var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
 
-  for (var k = 2; k < treeHeight; k++) {
-    for (var i = 0; i < 2; i++) {
-      addLine(
-        -tiltedWidth,
-        k * tiltedHeight,
-        i == 0 ? 0 : angle,
-        i == 0 ? tiltedHeight : length
-      );
+  for (var i = -1; i < 2; i += 2) {
+    addLine(0, 0, initialAngle, initialHeight, i);
+  }
+  for (var j = -1; j < 2; j += 2) {
+    buildLevelOne(treeHeight, j);
+    buildLevelTwo(treeHeight, j);
+
+    for (var i = 3; i < treeHeight; i++) {
+      buildLevelThree(treeHeight, i, j);
+    }
+    for (var k = 2; k < treeHeight; k++) {
+      for (var i = 0; i < 2; i++) {
+        addLine(
+          -tiltedWidth,
+          (k - 1) * tiltedHeight,
+          i == 0 ? 0 : angle,
+          i == 0 ? tiltedHeight : length,
+          j
+        );
+      }
     }
   }
 }
 
 build();
 
-function buildLevelThree(treeHeight, level) {
+function buildLevelThree(treeHeight, level, direction) {
   for (var j = 0; j < 2 ** (treeHeight - level) - 1; j++) {
     for (var i = 1; i <= 2; i++) {
-      var b = 2 ** (level - 2) * i - (level == 4 ? 0 : 1);
-      var a = (2 ** level - 3 - b - (level == 4 ? 1 : 0)) * tiltedWidth;
-      if (level >= 5) {
-        b = 2 ** (level - 2) * i - 1;
-        a = (2 ** level - 3 - b - 1) * tiltedWidth;
-      }
-      console.log(a, b);
-      var length = Math.sqrt(tiltedHeight ** 2 + a ** 2);
+      var width = 2 ** (level - 2) * i * tiltedWidth;
+      var length = Math.sqrt(tiltedHeight ** 2 + width ** 2);
       var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
       addLine(
         -tiltedWidth * 3 - j * 2 ** (level - 1) * tiltedWidth,
-        (treeHeight - (level - 2)) * tiltedHeight,
+        (treeHeight - (level - 1)) * tiltedHeight,
         angle,
-        length
+        length,
+        direction
       );
     }
   }
 }
 
-function buildLevelTwo(treeHeight) {
+function buildLevelTwo(treeHeight, direction) {
   var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
 
   for (var i = 0; i < 2; i++) {
     addLine(
       -tiltedWidth,
-      (treeHeight - 1) * tiltedHeight,
+      (treeHeight - 2) * tiltedHeight,
       i == 0 ? 0 : angle,
-      i == 0 ? tiltedHeight : length
+      i == 0 ? tiltedHeight : length,
+      direction
     );
   }
 }
 
-function buildLevelOne(treeHeight) {
+function buildLevelOne(treeHeight, direction) {
   var treeWidthL = 2 ** treeHeight / 4;
   var parent = document.querySelector(".box");
   for (var i = 0; i < treeWidthL; i++) {
     for (var j = 0; j < 2; j++) {
       var x = i * (-tiltedWidth * 2) - tiltedWidth;
-      var y = treeHeight * tiltedHeight;
+      var y = (treeHeight - 1) * tiltedHeight;
       var angle = j == 0 ? initialAngle : -initialAngle;
-      addLine(x, y, angle, initialHeight);
+      addLine(x, y, angle, initialHeight, direction);
     }
   }
 }
 
-function addLine(x, y, angle, height) {
+function addLine(x, y, angle, height, direction) {
   var parent = document.querySelector(".box");
   var line = document.createElement("div");
   line.className = "line";
   line.style.height = `${height}px`;
-  line.style.transform = `translate(${x}px, ${y}px) rotateZ(${angle}deg)`;
+  line.style.transform = `translate(${x * direction}px, ${y}px) rotateZ(${
+    angle * direction
+  }deg)`;
   parent.appendChild(line);
 }
