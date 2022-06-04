@@ -156,7 +156,7 @@ h1 {
 
 .line {
   position: absolute;
-  width: 5px;
+  width: 1px;
   height: 100px;
   background-color: white;
   transform-origin: top;

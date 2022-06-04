@@ -1,8 +1,9 @@
 var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
-var initialAngle = 35;
+var initialAngle = 25;
 var initialHeight = 50;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
+var tiltedWidth = initialHeight * Math.sin((Math.PI / 180) * initialAngle);
 var nodes = [];
 
 var tree = [];
@@ -249,13 +250,13 @@ function build() {
     buildLevelThree(treeHeight, i, parent);
   }
 
-  var length = Math.sqrt((tiltedHeight * 2) ** 2 + tiltedHeight ** 2);
+  var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
 
   for (var k = 2; k < treeHeight; k++) {
     for (var i = 0; i < 2; i++) {
       addLine(
-        -tiltedHeight,
+        -tiltedWidth,
         k * tiltedHeight,
         i == 0 ? 0 : angle,
         i == 0 ? tiltedHeight : length
@@ -270,12 +271,16 @@ function buildLevelThree(treeHeight, level) {
   for (var j = 0; j < 2 ** (treeHeight - level) - 1; j++) {
     for (var i = 1; i <= 2; i++) {
       var b = 2 ** (level - 2) * i - (level == 4 ? 0 : 1);
-      var a = (2 ** level - 3 - b - (level == 4 ? 1 : 0)) * tiltedHeight;
+      var a = (2 ** level - 3 - b - (level == 4 ? 1 : 0)) * tiltedWidth;
+      if (level >= 5) {
+        b = 2 ** (level - 2) * i - 1;
+        a = (2 ** level - 3 - b - 1) * tiltedWidth;
+      }
       console.log(a, b);
       var length = Math.sqrt(tiltedHeight ** 2 + a ** 2);
       var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
       addLine(
-        -tiltedHeight * 3 - j * 4 * tiltedHeight,
+        -tiltedWidth * 3 - j * 2 ** (level - 1) * tiltedWidth,
         (treeHeight - (level - 2)) * tiltedHeight,
         angle,
         length
@@ -285,12 +290,12 @@ function buildLevelThree(treeHeight, level) {
 }
 
 function buildLevelTwo(treeHeight) {
-  var length = Math.sqrt((tiltedHeight * 2) ** 2 + tiltedHeight ** 2);
+  var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
 
   for (var i = 0; i < 2; i++) {
     addLine(
-      -tiltedHeight,
+      -tiltedWidth,
       (treeHeight - 1) * tiltedHeight,
       i == 0 ? 0 : angle,
       i == 0 ? tiltedHeight : length
@@ -303,7 +308,7 @@ function buildLevelOne(treeHeight) {
   var parent = document.querySelector(".box");
   for (var i = 0; i < treeWidthL; i++) {
     for (var j = 0; j < 2; j++) {
-      var x = i * (-tiltedHeight * 2) - tiltedHeight;
+      var x = i * (-tiltedWidth * 2) - tiltedWidth;
       var y = treeHeight * tiltedHeight;
       var angle = j == 0 ? initialAngle : -initialAngle;
       addLine(x, y, angle, initialHeight);
