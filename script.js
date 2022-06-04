@@ -1,6 +1,7 @@
 var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
 var initial_angle = 45;
+var initialHeight = 100;
 var nodes = [];
 
 var tree = [];
@@ -257,15 +258,9 @@ function build() {
   var length = Math.sqrt((70.71 * 2) ** 2 + 70.71 ** 2);
   var angle = (Math.acos(70.71 / length) * 180) / Math.PI;
 
-  {
+  for (var k = 2; k < treeHeight; k++) {
     for (var i = 0; i < 2; i++) {
-      var line = document.createElement("div");
-      line.className = "line";
-      line.style.height = `${i == 0 ? 100 : length}px`;
-      line.style.transform = `translate(${-70.71}px, ${
-        (treeHeight - 2) * 70.71
-      }px) rotateZ(${i == 0 ? 0 : angle}deg)`;
-      parent.appendChild(line);
+      addLine(-70.71, k * 70.71, i == 0 ? 0 : angle, i == 0 ? 70.71 : length);
     }
   }
 }
@@ -280,13 +275,12 @@ function buildLevelThree(treeHeight, level, parent) {
       console.log(a, b);
       var length = Math.sqrt(70.71 ** 2 + a ** 2);
       var angle = (Math.acos(70.71 / length) * 180) / Math.PI;
-      var line = document.createElement("div");
-      line.className = "line";
-      line.style.height = `${length}px`;
-      line.style.transform = `translate(${-70.71 * 3 - j * 4 * 70.71}px, ${
-        (treeHeight - (level - 2)) * 70.71
-      }px) rotateZ(${angle}deg)`;
-      parent.appendChild(line);
+      addLine(
+        -70.71 * 3 - j * 4 * 70.71,
+        (treeHeight - (level - 2)) * 70.71,
+        angle,
+        length
+      );
     }
   }
 }
@@ -296,13 +290,12 @@ function buildLevelTwo(treeHeight, parent) {
   var angle = (Math.acos(70.71 / length) * 180) / Math.PI;
 
   for (var i = 0; i < 2; i++) {
-    var line = document.createElement("div");
-    line.className = "line";
-    line.style.height = `${i == 0 ? 70.71 : length}px`;
-    line.style.transform = `translate(${-70.71}px, ${
-      (treeHeight - 1) * 70.71
-    }px) rotateZ(${i == 0 ? 0 : angle}deg)`;
-    parent.appendChild(line);
+    addLine(
+      -70.71,
+      (treeHeight - 1) * 70.71,
+      i == 0 ? 0 : angle,
+      i == 0 ? 70.71 : length
+    );
   }
 }
 
@@ -314,10 +307,16 @@ function buildLevelOne(treeHeight) {
       var x = i * (-70.71 * 2) - 70.71;
       var y = treeHeight * 70.71;
       var angle = j == 0 ? 45 : -45;
-      var line = document.createElement("div");
-      line.className = "line";
-      line.style.transform = `translate(${x}px, ${y}px) rotateZ(${angle}deg)`;
-      parent.appendChild(line);
+      addLine(x, y, angle, initialHeight);
     }
   }
+}
+
+function addLine(x, y, angle, height) {
+  var parent = document.querySelector(".box");
+  var line = document.createElement("div");
+  line.className = "line";
+  line.style.height = `${height}px`;
+  line.style.transform = `translate(${x}px, ${y}px) rotateZ(${angle}deg)`;
+  parent.appendChild(line);
 }
