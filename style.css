@@ -127,6 +127,7 @@ h1 {
 }
 
 .label {
+  position: absolute;
   color: rgb(0, 0, 0);
   background-color: white;
   overflow: hidden;
@@ -138,7 +139,8 @@ h1 {
   justify-content: center;
   width: 0px;
   height: 0px;
-  transform-origin: top;
+  z-index: 2;
+  transform-origin: center;
   transition-property: width, height, transform;
   transition-duration: 0.5s;
   transition-timing-function: cubic-bezier(0, 1.85, 0.8, 1),

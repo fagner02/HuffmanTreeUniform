@@ -71,7 +71,6 @@ function rebuildTree() {
 
 var card_id = 0;
 function addCard() {
-  console.log("addCard");
   var card = document.createElement("div");
   card.className = "node";
   var nodes = document.querySelector(".nodes");
@@ -89,7 +88,6 @@ function addCard() {
 var inputs = {};
 
 function receiveInput(e) {
-  console.log("receiveInput", e);
   if (e.value == "") {
     return;
   }
@@ -97,11 +95,9 @@ function receiveInput(e) {
     e.value = 0;
     return;
   }
-  console.log(e.value);
   inputs[e.id] = parseInt(e.value);
   nodes = [];
   Object.values(inputs).forEach((x) => {
-    console.log(x);
     nodes.push([x, null, [0, 0]]);
   });
   nodes.sort((x, y) => {
@@ -109,18 +105,37 @@ function receiveInput(e) {
   });
   buildTree();
   rebuildTree();
+  build();
   console.table(treenodes);
-  console.log(treenodes[0][1]);
 }
 
 function build() {
-  var treeHeight = 5;
+  var treeHeight = treenodes.length - 1;
+  var parent = document.querySelector(".box");
+  while (parent.lastChild) {
+    parent.removeChild(parent.lastChild);
+  }
+  if (treenodes.length > 0) {
+    addLabel(0, initialPosition, treenodes[treeHeight][1]);
+  }
+
+  if (treeHeight <= 0) {
+    return;
+  }
 
   var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
 
   for (var i = -1; i < 2; i += 2) {
-    addLine(0, 0, initialAngle, initialHeight, i);
+    addLine(
+      0,
+      0,
+      initialAngle,
+      initialHeight,
+      i,
+      2 - (i + 1) / 2,
+      treeHeight - 1
+    );
   }
   for (var j = -1; j < 2; j += 2) {
     buildLevelOne(treeHeight, j);
@@ -136,7 +151,8 @@ function build() {
           i == 0 ? 0 : angle,
           i == 0 ? tiltedHeight : length,
           j,
-          (j == -1 ? 1 + i : 0 - i) + 2 ** (treeHeight - (treeHeight - k + 1))
+          (j == -1 ? 1 + i : 0 - i) + 2 ** (treeHeight - (treeHeight - k + 1)),
+          k
         );
       }
     }
@@ -146,7 +162,7 @@ function build() {
 build();
 
 function buildLevelThree(treeHeight, level, direction) {
-  var k = direction == -1 ? 1 : 0;
+  var k = 2 ** (treeHeight - level + 2) / 2 + (direction == -1 ? 3 : -2);
   for (var j = 0; j < 2 ** (treeHeight - level) - 1; j++) {
     for (var i = 1; i <= 2; i++) {
       var width = 2 ** (level - 2) * i * tiltedWidth;
@@ -159,31 +175,32 @@ function buildLevelThree(treeHeight, level, direction) {
         angle,
         length,
         direction,
-        k
+        k,
+        level
       );
-      if (level == 3) {
-        console.log(l);
-      }
-      k++;
+      k -= direction;
     }
   }
 }
 
 function buildLevelOne(treeHeight, direction) {
   var treeWidthL = 2 ** treeHeight / 4;
+  if (treeHeight < 2) {
+    return;
+  }
   var k = direction == 1 ? 2 ** treeHeight / 2 : 2 ** treeHeight / 2 + 1;
   for (var i = 0; i < treeWidthL; i++) {
     for (var j = 0; j < 2; j++) {
       var x = i * (-tiltedWidth * 2) - tiltedWidth;
       var y = (treeHeight - 1) * tiltedHeight;
       var angle = j == 1 ? initialAngle : -initialAngle;
-      addLine(x, y, angle, initialHeight, direction, k);
+      addLine(x, y, angle, initialHeight, direction, k, 0);
       k += direction * -1;
     }
   }
 }
 
-function addLine(x, y, angle, height, direction, id = -1) {
+function addLine(x, y, angle, height, direction, id = -1, level) {
   var parent = document.querySelector(".box");
   var line = document.createElement("div");
   line.className = "line";
@@ -193,5 +210,27 @@ function addLine(x, y, angle, height, direction, id = -1) {
   }px) rotateZ(${angle * direction}deg)`;
   line.id = id;
   parent.appendChild(line);
+  if (!treenodes[level]?.[id]) {
+    console.log(level, id);
+    return line;
+  }
+  console.log(level, id);
+  labelY = height * Math.cos((Math.PI / 180) * angle) + y + initialPosition;
+  labelX =
+    height * Math.sin((Math.PI / 180) * angle) * (direction * -1) +
+    x * direction;
+  addLabel(labelX, labelY, treenodes[level]?.[id]);
   return line;
+}
+
+function addLabel(x, y, id) {
+  var parent = document.querySelector(".box");
+  var label = document.createElement("div");
+  label.className = "label";
+  label.style.height = "20px";
+  label.style.width = "20px";
+  label.style.transform = `translate(${x}px, ${y}px)`;
+  label.id = id;
+  label.innerHTML = id;
+  parent.appendChild(label);
 }
