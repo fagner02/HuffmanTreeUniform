@@ -40,11 +40,33 @@ angle_range.addEventListener("input", (e) => {
   initialAngle = e.target.value;
   updateVizualizer();
 });
-
+var treenodes = [];
 function rebuildTree() {
-  buildTree();
-  var treenodes = [];
-  tree.forEach((x) => {});
+  var level = 0;
+  treenodes = [];
+  var tempTree = [[tree[0][0], tree[0][1], 1]];
+
+  while (true) {
+    var temp = [];
+    if (treenodes.length < level + 1) {
+      treenodes.push({});
+    }
+    var i = 0;
+    tempTree.forEach((x) => {
+      treenodes[level][x[2]] = x[0];
+
+      x[1]?.forEach((y) => {
+        temp.push([y[0], y[1], x[2] * 2 - (i % 2 == 0 ? 1 : 0)]);
+        i++;
+      });
+    });
+    if (i == 0) {
+      break;
+    }
+    level++;
+    tempTree = temp;
+  }
+  treenodes = treenodes.reverse();
 }
 
 var card_id = 0;
@@ -86,11 +108,13 @@ function receiveInput(e) {
     return x[0] - y[0];
   });
   buildTree();
-  console.table(tree);
+  rebuildTree();
+  console.table(treenodes);
+  console.log(treenodes[0][1]);
 }
 
 function build() {
-  var treeHeight = 6;
+  var treeHeight = 5;
 
   var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
   var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
@@ -100,7 +124,6 @@ function build() {
   }
   for (var j = -1; j < 2; j += 2) {
     buildLevelOne(treeHeight, j);
-    buildLevelTwo(treeHeight, j);
 
     for (var i = 3; i < treeHeight; i++) {
       buildLevelThree(treeHeight, i, j);
@@ -112,7 +135,8 @@ function build() {
           (k - 1) * tiltedHeight,
           i == 0 ? 0 : angle,
           i == 0 ? tiltedHeight : length,
-          j
+          j,
+          (j == -1 ? 1 + i : 0 - i) + 2 ** (treeHeight - (treeHeight - k + 1))
         );
       }
     }
@@ -122,51 +146,44 @@ function build() {
 build();
 
 function buildLevelThree(treeHeight, level, direction) {
+  var k = direction == -1 ? 1 : 0;
   for (var j = 0; j < 2 ** (treeHeight - level) - 1; j++) {
     for (var i = 1; i <= 2; i++) {
       var width = 2 ** (level - 2) * i * tiltedWidth;
       var length = Math.sqrt(tiltedHeight ** 2 + width ** 2);
       var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
-      addLine(
+
+      var l = addLine(
         -tiltedWidth * 3 - j * 2 ** (level - 1) * tiltedWidth,
         (treeHeight - (level - 1)) * tiltedHeight,
         angle,
         length,
-        direction
+        direction,
+        k
       );
+      if (level == 3) {
+        console.log(l);
+      }
+      k++;
     }
-  }
-}
-
-function buildLevelTwo(treeHeight, direction) {
-  var length = Math.sqrt((tiltedWidth * 2) ** 2 + tiltedHeight ** 2);
-  var angle = (Math.acos(tiltedHeight / length) * 180) / Math.PI;
-
-  for (var i = 0; i < 2; i++) {
-    addLine(
-      -tiltedWidth,
-      (treeHeight - 2) * tiltedHeight,
-      i == 0 ? 0 : angle,
-      i == 0 ? tiltedHeight : length,
-      direction
-    );
   }
 }
 
 function buildLevelOne(treeHeight, direction) {
   var treeWidthL = 2 ** treeHeight / 4;
-  var parent = document.querySelector(".box");
+  var k = direction == 1 ? 2 ** treeHeight / 2 : 2 ** treeHeight / 2 + 1;
   for (var i = 0; i < treeWidthL; i++) {
     for (var j = 0; j < 2; j++) {
       var x = i * (-tiltedWidth * 2) - tiltedWidth;
       var y = (treeHeight - 1) * tiltedHeight;
-      var angle = j == 0 ? initialAngle : -initialAngle;
-      addLine(x, y, angle, initialHeight, direction);
+      var angle = j == 1 ? initialAngle : -initialAngle;
+      addLine(x, y, angle, initialHeight, direction, k);
+      k += direction * -1;
     }
   }
 }
 
-function addLine(x, y, angle, height, direction) {
+function addLine(x, y, angle, height, direction, id = -1) {
   var parent = document.querySelector(".box");
   var line = document.createElement("div");
   line.className = "line";
@@ -174,5 +191,7 @@ function addLine(x, y, angle, height, direction) {
   line.style.transform = `translate(${x * direction}px, ${
     y + initialPosition
   }px) rotateZ(${angle * direction}deg)`;
+  line.id = id;
   parent.appendChild(line);
+  return line;
 }
