@@ -1,6 +1,8 @@
 var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
-var initialAngle = 20;
+var labelSize = 20;
+var treeHeight = 0;
+var initialAngle = 5;
 var initialHeight = 50;
 var initialPosition = 100;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
@@ -44,9 +46,13 @@ angle_range.addEventListener("input", (e) => {
   initialAngle = e.target.value;
 });
 
-var treenodes = [];
+var treenodes = [
+  { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
+  { 1: 1, 2: 1, 3: 1, 4: 1 },
+  { 1: 1, 2: 1 },
+  { 1: 1 },
+];
 
-console.table(treenodes);
 function rebuildTree() {
   var level = 0;
   treenodes = [];
@@ -110,10 +116,8 @@ function receiveInput(e) {
     return x[0] - y[0];
   });
   buildTree();
-  console.log(tree);
   rebuildTree();
   build();
-  console.table(treenodes);
 }
 
 function build() {
@@ -121,7 +125,7 @@ function build() {
     return;
   }
   updating = true;
-  var treeHeight = treenodes.length - 1;
+  treeHeight = treenodes.length - 1;
   var parent = document.querySelector(".box");
   timers.forEach((x) => clearTimeout(x));
   while (parent.lastChild) {
@@ -226,6 +230,28 @@ function addLine(x, y, angle, height, direction, id = -1, level) {
   }px) rotateZ(${0}deg)`;
   line.id = `${level}${id}`;
   parent.appendChild(line);
+
+  if (level == 0) {
+    var size =
+      direction < 0 ? id - 2 ** treeHeight / 2 : 2 ** treeHeight / 2 - id + 1;
+    size = Math.ceil(size / 2);
+    height = Math.sqrt(
+      (tiltedWidth +
+        (labelSize * size - labelSize / 2) * (angle < 0 ? -1 : 1)) **
+        2 +
+        tiltedHeight ** 2
+    );
+    newAngle =
+      (Math.asin(
+        (tiltedWidth +
+          (labelSize * size - labelSize / 2) * (angle < 0 ? -1 : 1)) /
+          height
+      ) *
+        180) /
+      Math.PI;
+
+    angle = newAngle * (angle < 0 ? -1 : 1);
+  }
   timers.push(
     setTimeout(() => {
       line.style.height = `${height}px`;
@@ -248,9 +274,6 @@ function addLine(x, y, angle, height, direction, id = -1, level) {
         height * Math.sin((Math.PI / 180) * angle) * (direction * -1) +
         x * direction;
       addLabel(labelX, labelY, treenodes[level]?.[id]);
-      if (!treenodes[level]?.[id]) {
-        console.log(level, id);
-      }
     }, 1100)
   );
   return line;
@@ -266,7 +289,7 @@ function addLabel(x, y, id) {
   label.innerHTML = id;
   parent.appendChild(label);
   setTimeout(() => {
-    label.style.height = "20px";
-    label.style.width = "20px";
+    label.style.height = `${labelSize}px`;
+    label.style.width = `${labelSize}px`;
   }, 100);
 }
