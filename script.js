@@ -189,7 +189,8 @@ function build() {
       treenodes[treeHeight][1],
       `b${treeHeight}1`,
       0,
-      initialPosition - labelSize / 2
+      initialPosition - labelSize / 2,
+      1
     );
   }
 
@@ -218,7 +219,7 @@ function build() {
     for (var i = 3; i < treeHeight; i++) {
       buildLevelThree(treeHeight, i, j);
     }
-    for (var k = 2; k < treeHeight; k++) {
+    for (var k = treeHeight - 1; k > 1; k--) {
       for (var i = 0; i < 2; i++) {
         addLine(
           -tiltedWidth,
@@ -265,7 +266,7 @@ function rebuild() {
     for (var i = 3; i < treeHeight; i++) {
       rebuildLevelThree(treeHeight, i, j);
     }
-    for (var k = 2; k < treeHeight; k++) {
+    for (var k = treeHeight - 1; k > 1; k--) {
       for (var i = 0; i < 2; i++) {
         updateLine(
           -tiltedWidth,
@@ -373,7 +374,9 @@ function addLine(x, y, angle, height, direction, id = -1, level) {
   }px) rotateZ(${0}deg)`;
   line.id = `l${level}${id}`;
   parent.appendChild(line);
-
+  if (level == treeHeight - 1) {
+    line.style.zIndex = "1";
+  }
   if (level == 0 && treeHeight > 1) {
     newAngle =
       (Math.asin(
@@ -402,14 +405,13 @@ function addLine(x, y, angle, height, direction, id = -1, level) {
   );
   timers.push(
     setTimeout(() => {
-      addLabel(treenodes[level]?.[id], `b${level}${id}`, angle, 0);
+      addLabel(treenodes[level]?.[id], `b${level}${id}`, angle, 0, direction);
     }, 1100)
   );
   return line;
 }
 
-function addLabel(text, id, angle, y) {
-  console.log(id.replace("b", "l"));
+function addLabel(text, id, angle, y, direction) {
   var parent = document.getElementById(id.replace("b", "l"));
   if (!parent) {
     parent = document.querySelector(".box");
@@ -418,7 +420,7 @@ function addLabel(text, id, angle, y) {
   label.className = "label";
 
   label.style.transform = `translate(${0}px, ${y + labelSize / 2}px) rotateZ(${
-    angle * -1
+    angle * -1 * direction
   }deg)`;
   label.id = id;
   label.innerHTML = text;
@@ -453,13 +455,13 @@ function updateLine(x, y, angle, height, direction, id, level) {
   labelX =
     height * Math.sin((Math.PI / 180) * angle) * (direction * -1) +
     x * direction;
-  updateLabel(`b${level}${id}`, angle);
+  updateLabel(`b${level}${id}`, angle, direction);
 }
 
-function updateLabel(id, angle) {
+function updateLabel(id, angle, direction) {
   var label = document.getElementById(id);
   label.style.transform = `translate(${0}px, ${labelSize / 2}px) rotateZ(${
-    angle * -1
+    angle * -1 * direction
   }deg)`;
   // label.style.height = `${0}px`;
   // label.style.width = `${0}px`;

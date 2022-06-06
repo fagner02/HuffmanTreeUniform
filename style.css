@@ -115,11 +115,11 @@ h1 {
 .label {
   position: absolute;
   color: rgb(0, 0, 0);
+  font-weight: 700;
   background-color: white;
   overflow: hidden;
   border-radius: 100px;
   padding: 0;
-  margin-top: -5px;
   display: flex;
   align-items: center;
   justify-content: center;
