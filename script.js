@@ -2,7 +2,7 @@ var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
 var labelSize = 20;
 var treeHeight = 0;
-var initialAngle = 10;
+var initialAngle = 20;
 var initialHeight = 50;
 var initialPosition = 100;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
@@ -47,6 +47,58 @@ angle_range.addEventListener("input", (e) => {
 });
 
 var treenodes = [
+  {
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+    7: 7,
+    8: 8,
+    9: 9,
+    10: 10,
+    11: 11,
+    12: 12,
+    13: 13,
+    14: 14,
+    15: 15,
+    16: 16,
+    17: 1,
+    18: 2,
+    19: 3,
+    20: 4,
+    21: 5,
+    22: 6,
+    23: 7,
+    24: 8,
+    25: 9,
+    26: 10,
+    27: 11,
+    28: 12,
+    29: 13,
+    30: 14,
+    31: 15,
+    32: 16,
+  },
+  {
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+    7: 7,
+    8: 8,
+    9: 9,
+    10: 10,
+    11: 11,
+    12: 12,
+    13: 13,
+    14: 14,
+    15: 15,
+    16: 16,
+  },
   { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
   { 1: 1, 2: 1, 3: 1, 4: 1 },
   { 1: 1, 2: 1 },
@@ -231,27 +283,17 @@ function addLine(x, y, angle, height, direction, id = -1, level) {
   line.id = `${level}${id}`;
   parent.appendChild(line);
 
-  if (level == 0) {
-    var size =
-      direction < 0 ? id - 2 ** treeHeight / 2 : 2 ** treeHeight / 2 - id + 1;
-    size = Math.ceil(size / 2);
-    height = Math.sqrt(
-      (tiltedWidth +
-        (labelSize * size - labelSize / 2) * (angle < 0 ? -1 : 1)) **
-        2 +
-        tiltedHeight ** 2
-    );
+  if (level == 0 && treeHeight > 1) {
     newAngle =
       (Math.asin(
-        (tiltedWidth +
-          (labelSize * size - labelSize / 2) * (angle < 0 ? -1 : 1)) /
-          height
+        ((tiltedWidth - labelSize / 2) * (angle < 0 ? -1 : 1)) / height
       ) *
         180) /
       Math.PI;
-
-    angle = newAngle * (angle < 0 ? -1 : 1);
+    newAngle = angle - newAngle;
+    angle -= newAngle;
   }
+
   timers.push(
     setTimeout(() => {
       line.style.height = `${height}px`;
