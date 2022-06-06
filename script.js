@@ -2,7 +2,7 @@ var root = document.querySelector(".box.parent");
 var angle_range = document.querySelector("input");
 var labelSize = 20;
 var treeHeight = 0;
-var initialAngle = 5;
+var initialAngle = 10;
 var initialHeight = 50;
 var initialPosition = 100;
 var tiltedHeight = initialHeight * Math.cos((Math.PI / 180) * initialAngle);
@@ -53,7 +53,7 @@ var treenodes = [
   { 1: 1 },
 ];
 
-function rebuildTree() {
+function buildLeveledTree() {
   var level = 0;
   treenodes = [];
   var tempTree = [[tree[0][0], tree[0][1], 1]];
@@ -116,7 +116,7 @@ function receiveInput(e) {
     return x[0] - y[0];
   });
   buildTree();
-  rebuildTree();
+  buildLeveledTree();
   build();
 }
 
